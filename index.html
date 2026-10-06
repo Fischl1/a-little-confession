@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f3fb">
+  <meta name="description" content="Write a note in your own words, then make the confession.">
+  <title>A Little Confession</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f3fb;
+      --paper-deep: #e9e0f2;
+      --ink: #2c2634;
+      --muted: #716b79;
+      --line: #d9cfe3;
+      --accent: #9275b3;
+      --accent-dark: #674d88;
+      --white: #fffdfc;
+      --serif: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      --sans: "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--sans);
+      background-color: var(--paper);
+      background-image: repeating-linear-gradient(0deg, transparent 0 5px, rgb(89 69 119 / 2.2%) 5px 6px);
+    }
+
+    button, input, textarea { font: inherit; }
+    button { color: inherit; }
+    [hidden] { display: none !important; }
+
+    .topline {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(22px, 6vw, 88px);
+      border-bottom: 1px solid rgb(89 69 119 / 16%);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 28px;
+      aspect-ratio: 1;
+      place-items: center;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      font-size: 14px;
+    }
+
+    .top-note {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .editor-view {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: clamp(40px, 7vw, 92px) clamp(22px, 6vw, 72px) 72px;
+      animation: arrive .55s ease both;
+    }
+
+    .intro { max-width: 670px; margin-bottom: 46px; }
+    .eyebrow {
+      margin: 0 0 16px;
+      color: var(--accent-dark);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+    h1 {
+      max-width: 650px;
+      margin-bottom: 14px;
+      font-family: var(--serif);
+      font-size: clamp(42px, 6vw, 70px);
+      font-weight: 400;
+      line-height: .99;
+      letter-spacing: 0;
+    }
+
+    h1 em { color: var(--accent); font-weight: 400; }
+    .intro-copy { max-width: 470px; margin-bottom: 0; color: var(--muted); font-size: 15px; line-height: 1.65; }
+
+    .compose-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, .82fr);
+      gap: clamp(34px, 6vw, 76px);
+      align-items: start;
+    }
+
+    .compose { display: grid; gap: 26px; }
+    .field { display: grid; gap: 9px; }
+    .field label {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+
+    input, textarea {
+      width: 100%;
+      color: var(--ink);
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      border-radius: 0;
+      outline: none;
+      transition: border-color .18s ease, background-color .18s ease;
+    }
+
+    input { min-height: 48px; padding: 8px 2px; font-family: var(--serif); font-size: 23px; }
+    textarea {
+      min-height: 178px;
+      padding: 12px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      background-color: rgb(255 253 252 / 55%);
+      font-family: var(--serif);
+      font-size: 17px;
+      line-height: 1.65;
+    }
+
+    input::placeholder, textarea::placeholder { color: #a49aaf; opacity: 1; }
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea:focus { background-color: var(--white); }
+
+    .field-meta { display: flex; justify-content: space-between; gap: 14px; color: var(--muted); font-size: 12px; }
+    .error { min-height: 16px; margin: -17px 0 0; color: var(--accent-dark); font-size: 13px; }
+
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-top: 2px; }
+    .primary-button {
+      min-height: 50px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 13px;
+      padding: 0 21px;
+      color: var(--white);
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background-color .18s ease, transform .18s ease;
+    }
+
+    .primary-button:hover { background: var(--accent-dark); transform: translateY(-1px); }
+    .primary-button:active { transform: translateY(0); }
+    .primary-button .arrow { font-size: 19px; line-height: 1; }
+    .private-note { max-width: 195px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+    .preview-wrap { padding-top: 3px; }
+    .preview-caption {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .letter {
+      position: relative;
+      min-height: 310px;
+      padding: clamp(24px, 4vw, 42px);
+      overflow-wrap: anywhere;
+      background: var(--white);
+      box-shadow: 0 8px 26px rgb(73 49 88 / 8%), 0 1px 2px rgb(73 49 88 / 10%);
+      transform: rotate(.7deg);
+    }
+
+    .letter::before {
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgb(217 207 227 / 52%);
+      content: "";
+      pointer-events: none;
+    }
+
+    .letter-inner { position: relative; z-index: 1; }
+    .letter-to { margin: 0 0 24px; color: var(--accent-dark); font-family: var(--serif); font-size: 18px; }
+    .letter-body { min-height: 100px; margin: 0; white-space: pre-wrap; font-family: var(--serif); font-size: 16px; line-height: 1.75; }
+    .letter-placeholder { color: #a79fb0; font-style: italic; }
+    .letter-signoff { margin: 25px 0 0; color: var(--muted); font-family: var(--serif); font-size: 15px; font-style: italic; }
+    .preview-flower { position: absolute; right: 28px; bottom: 20px; color: #b9a4cf; font-family: var(--serif); font-size: 24px; }
+
+    .reveal-view {
+      width: min(790px, 100%);
+      min-height: calc(100vh - 64px);
+      display: grid;
+      align-content: center;
+      margin: 0 auto;
+      padding: 68px 24px 80px;
+      animation: arrive .65s ease both;
+    }
+
+    .reveal-paper {
+      padding: clamp(34px, 8vw, 82px) clamp(26px, 10vw, 100px);
+      background: var(--white);
+      box-shadow: 0 12px 42px rgb(73 49 88 / 10%);
+      text-align: center;
+    }
+
+    .reveal-eyebrow { margin: 0 0 26px; color: var(--accent-dark); font-size: 11px; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
+    .reveal-greeting { margin: 0 0 26px; color: var(--muted); font-family: var(--serif); font-size: 21px; font-style: italic; }
+    .reveal-message { margin: 0 auto 34px; white-space: pre-wrap; overflow-wrap: anywhere; font-family: var(--serif); font-size: clamp(18px, 3vw, 22px); line-height: 1.75; text-align: left; }
+    .reveal-confession { margin: 0; color: var(--accent-dark); font-family: var(--serif); font-size: clamp(30px, 6vw, 48px); font-weight: 400; line-height: 1.15; }
+    .reveal-mark { margin: 20px 0 0; color: var(--accent); font-family: var(--serif); font-size: 22px; }
+    .reveal-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 30px; }
+    .secondary-button {
+      min-height: 46px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 9px;
+      padding: 0 16px;
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .secondary-button:hover { border-color: var(--accent); color: var(--accent-dark); }
+    button:focus-visible { outline: 3px solid #a88bc8; outline-offset: 3px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+    @keyframes arrive { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 760px) {
+      .topline { min-height: 58px; padding-inline: 20px; }
+      .top-note { font-size: 9px; }
+      .editor-view { padding-top: 48px; }
+      .intro { margin-bottom: 34px; }
+      .compose-grid { grid-template-columns: 1fr; gap: 43px; }
+      .preview-wrap { max-width: 500px; }
+      .letter { min-height: 260px; }
+    }
+
+    @media (max-width: 420px) {
+      .top-note { max-width: 100px; text-align: right; line-height: 1.45; }
+      .actions { align-items: flex-start; flex-direction: column; }
+      .private-note { max-width: 260px; }
+      .reveal-view { padding-inline: 16px; }
+      .reveal-paper { padding-inline: 24px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topline">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">a</span><span>A Little Confession</span></div>
+    <span class="top-note">A note from the heart</span>
+  </header>
+
+  <main>
+    <section class="editor-view" id="editorView" aria-labelledby="pageTitle">
+      <div class="intro">
+        <p class="eyebrow">A small space for a big feeling</p>
+        <h1 id="pageTitle">Say it in <em>your words.</em></h1>
+        <p class="intro-copy">Start with what you want them to know. When it feels right, add the part you've been holding close.</p>
+      </div>
+
+      <div class="compose-grid">
+        <form class="compose" id="confessionForm" novalidate>
+          <div class="field">
+            <label for="recipient">Who is this for?</label>
+            <input id="recipient" name="recipient" type="text" maxlength="60" autocomplete="off" placeholder="Their name">
+          </div>
+
+          <div class="field">
+            <label for="message">Your note to them</label>
+            <textarea id="message" name="message" maxlength="1200" required aria-describedby="messageMeta formError" placeholder="Write what you wish you could say..."></textarea>
+            <div class="field-meta" id="messageMeta"><span>Take your time. Make it yours.</span><span><span id="count">0</span> / 1200</span></div>
+          </div>
+          <p class="error" id="formError" role="alert" aria-live="polite"></p>
+
+          <div class="actions">
+            <button class="primary-button" type="submit">Make the confession <span class="arrow" aria-hidden="true">&#8594;</span></button>
+            <p class="private-note">Your words stay in this browser. Nothing is sent or saved.</p>
+          </div>
+        </form>
+
+        <aside class="preview-wrap" aria-label="Live letter preview">
+          <p class="preview-caption"><span>Your letter</span><span>Preview</span></p>
+          <article class="letter">
+            <div class="letter-inner">
+              <p class="letter-to" id="previewTo">Dear someone special,</p>
+              <p class="letter-body letter-placeholder" id="previewMessage">Your words will find their place here.</p>
+              <p class="letter-signoff">With all my heart,</p>
+            </div>
+            <span class="preview-flower" aria-hidden="true">&#10047;</span>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section class="reveal-view" id="revealView" aria-labelledby="revealTitle" hidden>
+      <article class="reveal-paper">
+        <p class="reveal-eyebrow">Something I've been meaning to tell you</p>
+        <p class="reveal-greeting" id="revealGreeting"></p>
+        <p class="reveal-message" id="revealMessage"></p>
+        <h1 class="reveal-confession" id="revealTitle" tabindex="-1">I love you.</h1>
+        <p class="reveal-mark" aria-hidden="true">&#10047;</p>
+      </article>
+      <div class="reveal-actions">
+        <button class="secondary-button" id="editButton" type="button"><span aria-hidden="true">&#8592;</span> Back to my note</button>
+        <button class="secondary-button" id="copyButton" type="button"><span aria-hidden="true">&#9633;</span> Copy confession</button>
+      </div>
+      <p class="sr-only" id="copyStatus" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector("#confessionForm");
+    const recipientInput = document.querySelector("#recipient");
+    const messageInput = document.querySelector("#message");
+    const editorView = document.querySelector("#editorView");
+    const revealView = document.querySelector("#revealView");
+    const previewTo = document.querySelector("#previewTo");
+    const previewMessage = document.querySelector("#previewMessage");
+    const count = document.querySelector("#count");
+    const formError = document.querySelector("#formError");
+    const revealGreeting = document.querySelector("#revealGreeting");
+    const revealMessage = document.querySelector("#revealMessage");
+    const copyStatus = document.querySelector("#copyStatus");
+    const copyButton = document.querySelector("#copyButton");
+
+    function updatePreview() {
+      const name = recipientInput.value.trim();
+      const message = messageInput.value;
+      previewTo.textContent = `Dear ${name || "someone special"},`;
+      previewMessage.textContent = message || "Your words will find their place here.";
+      previewMessage.classList.toggle("letter-placeholder", !message);
+      count.textContent = String(messageInput.value.length);
+      formError.textContent = "";
+    }
+
+    recipientInput.addEventListener("input", updatePreview);
+    messageInput.addEventListener("input", updatePreview);
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const message = messageInput.value.trim();
+      if (!message) {
+        formError.textContent = "Write a little note first, in your own words.";
+        messageInput.focus();
+        return;
+      }
+
+      revealGreeting.textContent = `Dear ${recipientInput.value.trim() || "someone special"},`;
+      revealMessage.textContent = message;
+      editorView.hidden = true;
+      revealView.hidden = false;
+      copyStatus.textContent = "";
+      document.querySelector("#revealTitle").focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    document.querySelector("#editButton").addEventListener("click", () => {
+      revealView.hidden = true;
+      editorView.hidden = false;
+      messageInput.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    function confessionText() {
+      const name = recipientInput.value.trim() || "someone special";
+      return `Dear ${name},\n\n${messageInput.value.trim()}\n\nI love you.`;
+    }
+
+    async function copyConfession() {
+      const text = confessionText();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const copyField = document.createElement("textarea");
+        copyField.value = text;
+        copyField.setAttribute("readonly", "");
+        copyField.style.position = "fixed";
+        copyField.style.opacity = "0";
+        document.body.append(copyField);
+        copyField.select();
+        document.execCommand("copy");
+        copyField.remove();
+      }
+      copyStatus.textContent = "Confession copied.";
+      copyButton.innerHTML = '<span aria-hidden="true">&#10003;</span> Copied';
+    }
+
+    copyButton.addEventListener("click", copyConfession);
+  </script>
+</body>
+</html>
